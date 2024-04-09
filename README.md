@@ -3,6 +3,14 @@
 ## Legenda
 Planboy is a Telegram bot designed to help users manage their daily plans and tasks seamlessly within the Telegram app. With integrated Notion functionality, users can effortlessly sync their plans with their Notion workspace for enhanced organization and productivity.
 
+
+## Todos
+- [ ] Add Docker build
+- [ ] Add logo to Notion Integration and for telegram bot in telegram itself
+- [ ] Add github readme thumbnail
+- [ ] Create Telegram WebApp with Solid | Vue | Svelte (Choose whatever u like it most)
+- [ ] Write a plan how to implement it with your keys (notion key, telegram bot token and etc)
+
 ## Key Features
 - [ ] Create and manage daily plans
 - [ ] Set reminders for important tasks
