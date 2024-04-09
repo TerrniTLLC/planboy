@@ -1,4 +1,4 @@
-module github.com/terrnitllc/notion_telegram_go
+module github.com/terrnitllc/planboy
 
 go 1.22.2
 
