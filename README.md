@@ -5,7 +5,7 @@ Planboy is a Telegram bot designed to help users manage their daily plans and ta
 
 
 ## Todos
-- [ ] Add Docker build
+- [x] Add Docker
 - [ ] Add logo to Notion Integration and for telegram bot in telegram itself
 - [ ] Add github readme thumbnail
 - [ ] Create Telegram WebApp with Solid | Vue | Svelte (Choose whatever u like it most)
@@ -18,10 +18,14 @@ Planboy is a Telegram bot designed to help users manage their daily plans and ta
 - [ ] User-friendly interface for intuitive task management (WebApp)
 
 ## Getting Started
+### Pre-installation
+- Golang *latest ["https://go.dev/doc/install"]
+- Docker[https://get.docker.com/]
 ```bash
 git clone https://github.com/terrnitllc/planboy.git
-go tidy
-go run main.go
+
+docker build -t planboy .
+docker run planboy
 ```
 
 ## Notion Integration
