@@ -1,0 +1,9 @@
+.env
+.env.example
+.env.local
+.env.production
+.env.test
+dist
+build
+node_modules
+

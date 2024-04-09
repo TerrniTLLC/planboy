@@ -1,0 +1,4 @@
+github.com/crocone/tg-bot v0.0.0-20230406135341-8d3e6a822eaf h1:MlX/ZHk1MRsiO0JNfz/Jgaqdmg2oNQyKOn4ppgFz8Ss=
+github.com/crocone/tg-bot v0.0.0-20230406135341-8d3e6a822eaf/go.mod h1:O9gm8d9geAvsoPQVHRIWXGttApyiA1JYOFZXVwmy0Bg=
+github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
+github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
