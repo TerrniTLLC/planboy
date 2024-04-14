@@ -1,7 +1,7 @@
 package main
 
 import (
-	bot "github.com/terrnitllc/planboy/bot"
+	bot "github.com/terrnitllc/bot"
 )
 
 func main() {
