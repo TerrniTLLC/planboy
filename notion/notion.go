@@ -6,11 +6,13 @@ import (
 	"time"
 
 	"github.com/jomei/notionapi"
+	"github.com/terrnitllc/planboy/utils/jsonify"
 )
 
 type NotionApi struct {
 	Client   *notionapi.Client
 	MainPage *notionapi.Page
+	Database *notionapi.Database
 	BlockId  notionapi.BlockID
 }
 
@@ -18,14 +20,17 @@ func NewNotionApi(token, pageId string) (*NotionApi, error) {
 	np := &NotionApi{
 		Client: notionapi.NewClient(notionapi.Token(token)),
 	}
-	page, err := np.Client.Page.Get(context.Background(), notionapi.PageID(pageId))
+	db, err := np.Client.Database.Get(context.Background(), notionapi.DatabaseID(pageId))
 	if err != nil {
 		return nil, err
 	}
-	np.MainPage = page
-	np.BlockId = notionapi.BlockID(page.ID)
+	np.Database = db
+	// np.MainPage = page
+	// np.BlockId = notionapi.BlockID(page.ID)
 
-	fmt.Println(np.BlockId)
+	s, _ := jsonify.Marshal(np.Database)
+	fmt.Println(string(s))
+
 	return np, nil
 }
 

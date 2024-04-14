@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	botInstance "github.com/crocone/tg-bot"
+
 	"github.com/terrnitllc/planboy/notion"
 
 	"github.com/joho/godotenv"
-	"github.com/jomei/notionapi"
 )
 
 // var botApi *botInstance.BotAPI
@@ -35,34 +36,35 @@ func startMenu() botInstance.InlineKeyboardMarkup {
 	return botInstance.NewInlineKeyboardMarkup(buttons...)
 }
 
-type TelegramBotStruct struct {
-	BotApi *botInstance.BotAPI
-	Notion *notion.NotionApi
-	Token  string
-}
-
 func (bot *TelegramBotStruct) startBot() {
-	bot, err := botInstance.NewBotAPI(bot.Token)
+	botApi, err := botInstance.NewBotAPI(bot.Token)
 	if err != nil {
 		log.Fatalf("Failed to initialize Telegram bot API: %v", err)
 	}
+	bot.BotApi = botApi
 
 	u := botInstance.NewUpdate(0)
 	u.Timeout = 60
-	updates := bot.BotAPI.GetUpdatesChan(u)
+	updates := bot.BotApi.GetUpdatesChan(u)
 	if err != nil {
 		log.Fatalf("Failed to start listening for updates %v", err)
 	}
 
 	for update := range updates {
 		if update.CallbackQuery != nil {
-			callbacks(update)
+			bot.callbacks(update)
 		} else if update.Message.IsCommand() {
-			commands(update)
+			bot.commands(update)
 		} else {
 			// simply message
 		}
 	}
+}
+
+type TelegramBotStruct struct {
+	BotApi *botInstance.BotAPI
+	Notion *notion.NotionApi
+	Token  string
 }
 
 func Run() {
@@ -76,7 +78,7 @@ func Run() {
 		log.Fatalf("TG_API_BOT_TOKEN is not set")
 	}
 
-	tgBot := TelegramBotStruct{BotAPI: nil, Notion: nil, Token: telegramApiCode}
+	tgBot := TelegramBotStruct{BotApi: nil, Notion: nil, Token: telegramApiCode}
 
 	// Notion client
 	notionApiSecret, ok := os.LookupEnv("NOTION_API_SECRET")
@@ -89,46 +91,48 @@ func Run() {
 		log.Fatalf("NOTION_DB_KEY is not set")
 	}
 
-	notionClient, ok := notionapi.NewClient(notionApiSecret, notionDbKey)
-	if !ok {
-		log.Fatalf("Notion client creation failed")
+	notion, err := notion.NewNotionApi(notionApiSecret, notionDbKey)
+	if err != nil {
+		log.Fatalf("Failed to initialize Notion: %v", err)
 	}
 
-	tgBot.Notion = notionClient
+	tgBot.Notion = notion
 	tgBot.startBot()
 
 	log.Print("Bot has been started !")
 }
 
-func callbacks(update botInstance.Update) {
+func (bot *TelegramBotStruct) callbacks(update botInstance.Update) {
 	data := update.CallbackQuery.Data
 	chatId := update.CallbackQuery.From.ID
 	firstName := update.CallbackQuery.From.FirstName
-	lastName := update.CallbackQuery.From.LastName
+	// lastName := update.CallbackQuery.From.LastName
+	notionPage := strings.Split(bot.Notion.MainPage.URL, "")
 	var text string
+
 	switch data {
 	case "get_page":
-		text = fmt.Sprintf("Привет %v %v", firstName, lastName)
+		text = fmt.Sprintf("Привет %v %v", firstName, notionPage)
 	default:
 		text = "Неизвестная команда"
 	}
 	msg := botInstance.NewMessage(chatId, text)
-	sendMessage(msg)
+	bot.sendMessage(msg)
 }
 
-func commands(update botInstance.Update) {
+func (bot *TelegramBotStruct) commands(update botInstance.Update) {
 	command := update.Message.Command()
 	switch command {
-	case "commands":
+	case "cmd":
 		msg := botInstance.NewMessage(update.Message.Chat.ID, "Planboy commands:")
 		msg.ReplyMarkup = startMenu()
 		msg.ParseMode = "Markdown"
-		sendMessage(msg)
+		bot.sendMessage(msg)
 	}
 }
 
-func sendMessage(msg botInstance.Chattable) {
-	if _, err := bot.Send(msg); err != nil {
+func (bot *TelegramBotStruct) sendMessage(msg botInstance.Chattable) {
+	if _, err := bot.BotApi.Send(msg); err != nil {
 		log.Panicf("Send message error: %v", err)
 	}
 }
