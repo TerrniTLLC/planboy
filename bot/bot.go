@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
+	"time"
 
 	botInstance "github.com/crocone/tg-bot"
+	"github.com/jomei/notionapi"
 
 	"github.com/terrnitllc/planboy/notion"
 
@@ -59,12 +60,15 @@ func (bot *TelegramBotStruct) startBot() {
 			// simply message
 		}
 	}
+
+	log.Print("Bot has been started !")
 }
 
 type TelegramBotStruct struct {
-	BotApi *botInstance.BotAPI
-	Notion *notion.NotionApi
-	Token  string
+	BotApi      *botInstance.BotAPI
+	Notion      *notion.NotionApi
+	Token       string
+	DatabaseKey string
 }
 
 func Run() {
@@ -96,10 +100,9 @@ func Run() {
 		log.Fatalf("Failed to initialize Notion: %v", err)
 	}
 
+	tgBot.DatabaseKey = notionDbKey
 	tgBot.Notion = notion
 	tgBot.startBot()
-
-	log.Print("Bot has been started !")
 }
 
 func (bot *TelegramBotStruct) callbacks(update botInstance.Update) {
@@ -107,12 +110,49 @@ func (bot *TelegramBotStruct) callbacks(update botInstance.Update) {
 	chatId := update.CallbackQuery.From.ID
 	firstName := update.CallbackQuery.From.FirstName
 	// lastName := update.CallbackQuery.From.LastName
-	notionPage := strings.Split(bot.Notion.MainPage.URL, "")
 	var text string
 
 	switch data {
 	case "get_page":
-		text = fmt.Sprintf("Привет %v %v", firstName, notionPage)
+
+		t, err := time.Parse(time.RFC3339, "2024-04-13T04:00:00Z")
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		var paramDate notionapi.Date
+		paramDate = notionapi.Date(t)
+
+		fmt.Println(paramDate)
+
+		//params := &notionapi.DatabaseQueryRequest{
+		//Filter: &notionapi.PropertyFilter{
+		//Property: "Created Date",
+		//Date: &notionapi.DateFilterCondition{
+		//Equals: &paramDate,
+		//},
+		//},
+		//}
+
+		params1 := &notionapi.DatabaseQueryRequest{
+			Filter: notionapi.PropertyFilter{
+				Property: "Done",
+				Checkbox: &notionapi.CheckboxFilterCondition{
+					DoesNotEqual: true,
+				},
+			},
+		}
+		// var paramDate notionapi.Date
+
+		response, err := bot.Notion.QueryTodayHabits(bot.DatabaseKey, params1)
+		if err != nil {
+			log.Fatalf("Failed to query Notion db: %v", err)
+		}
+		// res := json.Unmarshal(response)
+		//
+		fmt.Println(response)
+
+		text = fmt.Sprintf("Привет %v", firstName)
 	default:
 		text = "Неизвестная команда"
 	}

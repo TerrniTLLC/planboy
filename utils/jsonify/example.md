@@ -26,4 +26,7 @@ func main() {
     s, _ := colorjson.Marshal(obj)
     fmt.Println(string(s))
 }
+
+
+
 ```
